@@ -1,3 +1,4 @@
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -31,26 +32,19 @@ struct Product
 };
 
 
-template < typename T > struct Specification
+template < typename Spec > struct Filter
 {
-   virtual bool
-   isSatisfied(T const& item) const = 0;
-};
-
-
-template < typename T > struct Filter
-{
-   explicit Filter(std::unique_ptr< const Specification< T > > s) : spec(std::move(s))
+   explicit Filter(Spec&& spec) : specification(spec)
    {
    }
 
-   std::vector< const T* >
-   applyOn(std::vector< T > const& items) const
+   std::vector< const Product* >
+   applyOn(std::vector< Product > const& items) const
    {
-      std::vector< const T* > result;
+      std::vector< const Product* > result;
       for (auto const& item : items)
       {
-         if (spec->isSatisfied(item))
+         if (specification.isSatisfied(item))
          {
             result.push_back(&item);
          }
@@ -59,68 +53,85 @@ template < typename T > struct Filter
       return result;
    }
 
-   std::unique_ptr< const Specification< T > > spec;
+   Spec specification;
 };
 
 
-struct ColorSpecification : public Specification< Product >
+struct ColorSpecification
 {
-   explicit ColorSpecification(Color const color) : colorSpec(color)
+   explicit ColorSpecification(Color const c) : color(c)
    {
    }
+
 
    bool
-   isSatisfied(Product const& item) const override
+   isSatisfied(Product const& p) const
    {
-      return (item.color == colorSpec);
+      return p.color == color;
    }
 
-   Color colorSpec;
+   Color const color;
 };
 
-
-struct SizeSpecification : public Specification< Product >
+struct SizeSpecification
 {
-   explicit SizeSpecification(Size const size) : sizeSpec(size)
+   explicit SizeSpecification(Size const s) : size(s)
    {
    }
+
 
    bool
-   isSatisfied(Product const& item) const override
+   isSatisfied(Product const& p) const
    {
-      return (item.size == sizeSpec);
-   }
-
-   Size sizeSpec;
-};
-
-struct SizeAndColorSpecification : public Specification< Product >
-{
-   explicit SizeAndColorSpecification(Size const s, Color const c) : size(s), color(c)
-   {
-   }
-
-   bool
-   isSatisfied(Product const& item) const override
-   {
-      return ((item.size == size) && (item.color == color));
+      return p.size == size;
    }
 
    Size const size;
-   Color const color;
+};
+
+
+template < typename Spec1, typename Spec2 > struct AndSpecification
+{
+   explicit AndSpecification(Spec1&& s1, Spec2&& s2) : spec1(std::move(s1)), spec2(std::move(s2))
+   {
+   }
+
+   bool
+   isSatisfied(Product const& p) const
+   {
+      return spec1.isSatisfied(p) && spec2.isSatisfied(p);
+   }
+
+   Spec1 spec1;
+   Spec2 spec2;
+};
+
+template < typename Spec1, typename Spec2 > struct OrSpecification
+{
+   explicit OrSpecification(Spec1&& s1, Spec2&& s2) : spec1(std::move(s1)), spec2(std::move(s2))
+   {
+   }
+
+   bool
+   isSatisfied(Product const& p) const
+   {
+      return spec1.isSatisfied(p) || spec2.isSatisfied(p);
+   }
+
+   Spec1 spec1;
+   Spec2 spec2;
 };
 
 
 int
 main()
 {
-   std::vector< Product > products{{"Apple", Size::small, Color::red},     {"Watermelon", Size::medium, Color::green},
+   std::vector< Product > products{{"Apple", Size::small, Color::red},     {"Watermelon", Size::large, Color::green},
                                    {"Carrot", Size::small, Color::orange}, {"Lemon", Size::small, Color::yellow},
                                    {"Cabbage", Size::large, Color::green}, {"Cherry", Size::small, Color::red}};
 
 
-   auto spec = std::make_unique< SizeAndColorSpecification >(Size::small, Color::red);
-   auto filter = Filter< Product >{std::move(spec)};
+   auto filter = Filter{AndSpecification{ColorSpecification{Color::green}, SizeSpecification{Size::large}}};
 
    for (auto const p : filter.applyOn(products))
    {
