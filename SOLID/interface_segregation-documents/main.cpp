@@ -14,7 +14,6 @@ struct IMFMachine
    fax(Document const& doc) = 0;
 };
 
-
 // Better, segregated interfaces
 struct IPrinter
 {
@@ -38,19 +37,19 @@ struct MFP : public IMFMachine
 {
  public:
    void
-   print(const Document& doc) override
+   print(const Document&) override
    {
       // ok, it's a printer
    }
 
    void
-   scan(const File& srcFile, Document& doc) override
+   scan(const File&, Document&) override
    {
       // ok, it's a scanner
    }
 
    void
-   fax(const Document& doc) override
+   fax(const Document&) override
    {
       // ok, it's a fax machine
    }
@@ -60,17 +59,17 @@ struct WickedScanner : public IMFMachine
 {
  public:
    void
-   print(const Document& doc) override
+   print(const Document&) override
    {
       // not ok! it's not a printer
    }
    void
-   scan(const File& srcFile, Document& doc) override
+   scan(const File&, Document&) override
    {
       // ok, it's a scanner
    }
    void
-   fax(const Document& doc) override
+   fax(const Document&) override
    {
       // not ok! it's not a fax machine
    }
@@ -80,7 +79,7 @@ struct NormalScanner : public IScanner
 {
  public:
    void
-   scan(const File& srcFile, Document& doc) override
+   scan(const File&, Document&) override
    {
       // ok, it's just a scanner
    }

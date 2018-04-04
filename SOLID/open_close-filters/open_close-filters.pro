@@ -3,6 +3,6 @@ CONFIG += console c++1z
 CONFIG -= app_bundle
 CONFIG -= qt
 
-LIBS += -lpthread
+QMAKE_CXXFLAGS += -Wextra -Werror -pedantic -Wconversion
 
 SOURCES += main.cpp
