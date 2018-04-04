@@ -6,4 +6,5 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 HEADERS += \
-    XMLBuilder.hpp
+    XMLBuilder.hpp \
+    GroovyStyleHTMLBuilder.hpp

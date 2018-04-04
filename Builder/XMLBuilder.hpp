@@ -6,11 +6,12 @@ struct XMLElement
  private:
    XMLElement() = default;
 
-   XMLElement(std::string name) : name(std::move(name))
+   XMLElement(std::string name, std::size_t indent = INDENT) : name(std::move(name)), indent_size(indent)
    {
    }
 
-   XMLElement(std::string name, std::string text) : name(std::move(name)), text(std::move(text))
+   XMLElement(std::string name, std::string text, std::size_t indent = INDENT)
+      : name(std::move(name)), text(std::move(text)), indent_size(indent)
    {
    }
 
@@ -22,47 +23,52 @@ struct XMLElement
    XMLElement&
    operator=(XMLElement&&) = default;
 
-   std::string
-   str(std::size_t const indent = 0) const
+   friend std::ostream&
+   operator<<(std::ostream& os, XMLElement const& elem)
    {
-      std::ostringstream oss;
+      std::string i0(elem.indent_size, ' ');
+      std::string i1(elem.indent_size + INDENT, ' ');
+      os << i0 << "<" << elem.name << ">" << std::endl;
 
-      std::string i0(indent_size * indent, ' ');
-      std::string i1(indent_size * (indent + 1), ' ');
-      oss << i0 << "<" << name << ">" << std::endl;
-
-      if (text.size() > 0)
+      if (elem.text.size() > 0)
       {
-         oss << i1 << text << std::endl;
+         os << i1 << elem.text << std::endl;
       }
 
-      for (auto const& e : elements)
+      for (auto const& e : elem.elements)
       {
-         oss << e.str(indent + 1);
+         os << e;
       }
 
-      oss << i0 << "</" << name << ">" << std::endl;
+      os << i0 << "</" << elem.name << ">" << std::endl;
 
-      return oss.str();
+      return os;
    }
 
    XMLElement&
    add_child(std::string name)
    {
-      elements.push_back(XMLElement{name});
+      elements.push_back(XMLElement{name, indent_size + INDENT});
       return elements.back();
    }
 
    XMLElement&
    add_child(std::string name, std::string text)
    {
-      elements.push_back(XMLElement{name, text});
+      elements.push_back(XMLElement{name, text, indent_size + INDENT});
       return elements.back();
    }
 
    XMLElement&
    add_child(XMLElement&& elem)
    {
+      elem.indent_size += INDENT;
+
+      for (auto& elem : elem.elements)
+      {
+         elem.indent_size += INDENT;
+      }
+
       elements.push_back(std::move(elem));
       return elements.back();
    }
@@ -72,7 +78,9 @@ struct XMLElement
 
    std::vector< XMLElement > elements;
 
-   std::size_t const indent_size = 4;
+   std::size_t indent_size = 0;
+
+   static std::size_t const INDENT = 4;
 };
 
 
@@ -80,15 +88,16 @@ struct XMLBuilder
 {
    XMLElement root;
 
-   XMLBuilder(std::string root_name)
+   XMLBuilder(std::string root_name, std::size_t indent = 0)
    {
       root.name = root_name;
+      root.indent_size = indent;
    }
 
    XMLBuilder&
    add_child(std::string name, std::string text)
    {
-      root.elements.push_back(XMLElement{name, text});
+      root.elements.push_back(XMLElement{name, text, root.indent_size + XMLElement::INDENT});
       return *this;
    }
 
