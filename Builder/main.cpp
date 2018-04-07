@@ -39,9 +39,19 @@ int main()
 
 
   // Person facade builder
-  Person p = Person::create()
+  Person p = PersonBuilder()
      .lives().at("123 London Road").with_postcode("SW1 1GB").in("London")
      .works().at("PragmaSoft").as_a("Consultant").earning(10e6);
 
-   std::cout << p << std::endl;
+  // Typical construction
+  Person p2;
+  p2.street_address = "Tenisowa 23A/2";
+  p2.post_code = "71-073";
+  p2.city = "Szczecin";
+  p2.company_name = "Mobica Limited";
+  p2.position = "Senior Software Engineer";
+  p2.annual_income = 100'000'000;
+
+  std::cout << p << std::endl;
+  std::cout << p2 << std::endl;
 }

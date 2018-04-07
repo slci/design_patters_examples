@@ -3,12 +3,6 @@
 #include "Person.hpp"
 #include "PersonBuilder.hpp"
 
-PersonBuilder
-Person::create()
-{
-   return PersonBuilder{};
-}
-
 std::ostream&
 operator<<(std::ostream& os, const Person& obj)
 {

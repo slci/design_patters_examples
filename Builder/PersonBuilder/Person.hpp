@@ -14,9 +14,6 @@ class Person
    Person&
    operator=(Person&& other) = default;
 
-   static PersonBuilder
-   create();
-
    friend std::ostream&
    operator<<(std::ostream& os, const Person& obj);
 
@@ -25,7 +22,7 @@ class Person
    friend class PersonAddressBuilder;
    friend class PersonJobBuilder;
 
- private:
+   // private:
    Person() = default;
 
    // address
