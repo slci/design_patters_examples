@@ -8,6 +8,7 @@ struct IFoo
    name() = 0;
 };
 
+
 struct Foo : public IFoo
 {
    static int id;
@@ -26,7 +27,7 @@ struct Foo : public IFoo
 };
 int Foo::id = 0;
 
-// Needs a singleton instance of Foo
+
 struct Bar
 {
    Bar() = delete;
@@ -69,6 +70,7 @@ class X
  private:
    int x{666};
 };
+
 
 int
 main()
