@@ -5,3 +5,8 @@ CONFIG -= qt
 
 SOURCES += \
         main.cpp
+
+HEADERS += \
+    Dynamic.hpp \
+    Static.hpp \
+    Functional.hpp

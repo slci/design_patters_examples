@@ -1,9 +1,14 @@
+#ifndef DYNAMIC_HPP
+#define DYNAMIC_HPP
+
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
+
 using namespace std;
 
+namespace Dynamic {
 
 struct Shape
 {
@@ -95,13 +100,6 @@ struct TransparentShape : public Shape
    }
 };
 
+} // namespace Dynamic
 
-int
-main()
-{
-   auto r = std::make_unique< Rectangle >(123.0f, 321.0f);
-   auto rr = std::make_unique< ColoredShape >(std::move(r), "Red");
-   auto trr = std::make_unique< TransparentShape >(std::move(rr), 20);
-
-   std::cout << trr->str() << std::endl;
-}
+#endif // DYNAMIC_HPP
