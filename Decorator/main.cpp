@@ -14,6 +14,8 @@ main()
    std::cout << trc->str() << std::endl;
    //   trc->resize(2.0f); Can't! The Circle API is lost when decorated :(
 
+
+   // Static decorators test
    auto trc2 = Static::TransparentShape< Static::ColoredShape< Static::Circle > >(30, "Purple", 3.1415f);
 
    std::cout << trc2.str() << std::endl;
@@ -21,6 +23,4 @@ main()
    // We can access the full Circle API! :D
    trc2.resize(2.0f);
    std::cout << trc2.str() << std::endl;
-
-   // Static decorators test
 }
