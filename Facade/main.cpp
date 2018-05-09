@@ -1,26 +1,16 @@
-#include "BitmapTest.hpp"
+#include "BitmapFacade.hpp"
+
+#include <iostream>
+using namespace std;
 
 int
 main(int argc, char** argv)
 {
-   // This code needs Facade!
-   GLenum type;
+   BitmapFacade::initGlut(argc, argv);
+   auto& c = BitmapFacade::Console::instance();
 
-   glutInit(&argc, argv);
-   bitmap_test::Args(argc, argv);
+   c.createWindow(300, 300, "Bitmap Test1");
+   c.createWindow(200, 400, "Bitmap Test2");
 
-   type = (bitmap_test::rgb) ? GLUT_RGB : GLUT_INDEX;
-   type |= (bitmap_test::doubleBuffer) ? GLUT_DOUBLE : GLUT_SINGLE;
-   glutInitDisplayMode(type);
-   glutInitWindowSize(300, 300);
-   glutCreateWindow("Bitmap Test");
-
-   bitmap_test::Init();
-
-   glutReshapeFunc(bitmap_test::Reshape);
-   glutKeyboardFunc(bitmap_test::Key);
-   glutDisplayFunc(bitmap_test::Draw);
-
-
-   glutMainLoop();
+   c.run();
 }

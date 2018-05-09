@@ -9,4 +9,5 @@ SOURCES += \
         main.cpp
 
 HEADERS += \
-    BitmapTest.hpp
+    BitmapTest.hpp \
+    BitmapFacade.hpp

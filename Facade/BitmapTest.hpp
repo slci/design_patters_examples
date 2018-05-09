@@ -12,8 +12,6 @@ namespace bitmap_test {
 #define OPENGL_HEIGHT 13
 
 
-GLenum rgb, doubleBuffer;
-
 float boxA[3] = {0, 0, 0};
 float boxB[3] = {-100, 0, 0};
 float boxC[3] = {100, 0, 0};
@@ -37,17 +35,14 @@ GLubyte logo_bits[] = {
 static void
 Init(void)
 {
-   if (!rgb)
-   {
-      glutSetColor(0, 0.0, 0.0, 0.0);
-      glutSetColor(1, 1.0, 0.0, 0.0);
-      glutSetColor(2, 0.0, 1.0, 0.0);
-      glutSetColor(3, 1.0, 1.0, 0.0);
-      glutSetColor(4, 0.0, 0.0, 1.0);
-      glutSetColor(5, 1.0, 0.0, 1.0);
-      glutSetColor(6, 0.0, 1.0, 1.0);
-      glutSetColor(7, 1.0, 1.0, 1.0);
-   }
+   glutSetColor(0, 0.0, 0.0, 0.0);
+   glutSetColor(1, 1.0, 0.0, 0.0);
+   glutSetColor(2, 0.0, 1.0, 0.0);
+   glutSetColor(3, 1.0, 1.0, 0.0);
+   glutSetColor(4, 0.0, 0.0, 1.0);
+   glutSetColor(5, 1.0, 0.0, 1.0);
+   glutSetColor(6, 0.0, 1.0, 1.0);
+   glutSetColor(7, 1.0, 1.0, 1.0);
 
    glClearColor(0.0, 0.0, 0.0, 0.0);
    glClearIndex(0.0);
@@ -95,63 +90,28 @@ Draw(void)
    glPixelStorei(GL_UNPACK_LSB_FIRST, GL_TRUE);
    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-   (rgb) ? glColor3f(1.0, 1.0, 1.0) : glIndexi(7);
+   glColor3f(1.0, 1.0, 1.0);
    glRasterPos3fv(boxB);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits1);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits2);
 
-   (rgb) ? glColor3f(0.0, 1.0, 1.0) : glIndexi(6);
+   glColor3f(0.0, 1.0, 1.0);
    glRasterPos3fv(boxC);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits1);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits2);
 
-   (rgb) ? glColor3f(1.0, 0.0, 1.0) : glIndexi(5);
+   glColor3f(1.0, 0.0, 1.0);
    glRasterPos3fv(boxD);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits1);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits2);
 
-   (rgb) ? glColor3f(1.0, 1.0, 0.0) : glIndexi(3);
+   glColor3f(1.0, 1.0, 0.0);
    glRasterPos3fv(boxE);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits1);
    glBitmap(OPENGL_WIDTH, OPENGL_HEIGHT, OPENGL_WIDTH, 0.0, OPENGL_WIDTH, 0.0, OpenGL_bits2);
 
-   if (doubleBuffer)
-   {
-      glutSwapBuffers();
-   }
-   else
-   {
-      glFlush();
-   }
-}
 
-static void
-Args(int argc, char** argv)
-{
-   GLint i;
-
-   rgb = GL_TRUE;
-   doubleBuffer = GL_FALSE;
-
-   for (i = 1; i < argc; i++)
-   {
-      if (strcmp(argv[i], "-ci") == 0)
-      {
-         rgb = GL_FALSE;
-      }
-      else if (strcmp(argv[i], "-rgb") == 0)
-      {
-         rgb = GL_TRUE;
-      }
-      else if (strcmp(argv[i], "-sb") == 0)
-      {
-         doubleBuffer = GL_FALSE;
-      }
-      else if (strcmp(argv[i], "-db") == 0)
-      {
-         doubleBuffer = GL_TRUE;
-      }
-   }
+   glFlush();
 }
 
 } // namespace bitmap_test
