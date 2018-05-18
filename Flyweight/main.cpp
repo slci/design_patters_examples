@@ -1,5 +1,7 @@
 #include "BoostFlyweight.hpp"
 #include "HandMadeFlyweigth.hpp"
+#include "TextFormatting.hpp"
+
 
 int
 main()
@@ -22,4 +24,10 @@ main()
    assert(&u3.lastName() != &u4.lastName());
 
    std::cout << u3 << std::endl << u4 << std::endl;
+
+   text_fmt::BetterFormattedText text{"SomeCamelCaseText"};
+
+   std::cout << text << "\n";
+   text.getRange(4, 8).capitalize = true;
+   std::cout << text << "\n";
 }

@@ -10,4 +10,5 @@ LIBS += -lpthread
 
 HEADERS += \
     HandMadeFlyweigth.hpp \
-    BoostFlyweight.hpp
+    BoostFlyweight.hpp \
+    TextFormatting.hpp
