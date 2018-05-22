@@ -33,3 +33,5 @@
 
 # Qt Creator build directories
 build-*
+
+CMakeLists.txt.user
