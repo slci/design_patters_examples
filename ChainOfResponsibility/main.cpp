@@ -1,10 +1,12 @@
 #include <iostream>
 
+#include "BrokerChain.hpp"
 #include "PointerChain.hpp"
 
 int
 main()
 {
+   // Pointer chain test
    pointer_chain::Creature goblin{"Goblin", 7, 1};
    std::cout << goblin;
 
@@ -24,5 +26,20 @@ main()
 
    std::cout << goblin;
 
-   return 0;
+
+   // Broker Chain test
+   broker::Game game;
+   broker::Creature ogre{game, "Ogre", 1, 1};
+   {
+      broker::IncreasedDefenseModifier idm1{game, ogre}; // As long as modifiers live, ogre is stronger!
+      std::cout << ogre << "\n";
+
+      {
+         broker::DoubleAttackModifier dam{game, ogre};
+         broker::IncreasedDefenseModifier idm2{game, ogre};
+         std::cout << ogre << "\n";
+      }
+   }
+
+   std::cout << ogre << "\n"; // Ogre is lame again..
 }

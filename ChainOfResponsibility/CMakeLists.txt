@@ -4,4 +4,6 @@ project(ChainOfResponsibility)
 add_executable(${PROJECT_NAME}
    main.cpp
    PointerChain.hpp
+   BrokerChain.hpp
+   SignalAndSlots.hpp
 )
