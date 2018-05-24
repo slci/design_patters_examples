@@ -1,4 +1,5 @@
 #include "Dynamic.hpp"
+#include "Functional.hpp"
 #include "Static.hpp"
 
 using namespace std;
@@ -23,4 +24,9 @@ main()
    // We can access the full Circle API! :D
    trc2.resize(2.0f);
    std::cout << trc2.str() << std::endl;
+
+
+   // Functional decorator test
+   auto f = Logger{[] { cout << "  some work..\n"; }, "Decorated function"};
+   f();
 }
