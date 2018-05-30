@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
@@ -13,25 +14,48 @@ namespace behavioral {
 struct BankAccount
 {
    int balance = 0;
-   int overdraft_limit = -500;
+   const int overdraft_limit = -200;
 
-   void
-   deposit(int amount)
+   bool
+   deposit(const int amount)
    {
-      balance += amount;
-      cout << "deposited " << amount << ", balance now " << balance << "\n";
+      if ((balance + amount) <= 0) // overflow
+      {
+         cout << "cannot deposit " << amount << "$, bank is to small :)\n";
+         return false;
+      }
+      else if (amount <= 0)
+      {
+         cout << "cannot deposit " << amount << "$, the value must be positive.\n";
+         return false;
+      }
+      else
+      {
+         balance += amount;
+         cout << "deposited " << amount << "$, balance now " << balance << "$\n";
+         return true;
+      }
    }
 
    bool
-   withdraw(int amount)
+   withdraw(const int amount)
    {
       if (balance - amount >= overdraft_limit)
       {
          balance -= amount;
-         cout << "withdrew " << amount << ", balance now " << balance << "\n";
+         cout << "withdrew " << amount << "$, balance now " << balance << "$\n";
          return true;
       }
-      return false;
+      else if (amount <= 0)
+      {
+         cout << "cannot withdraw " << amount << "$, the value must be positive.\n";
+         return false;
+      }
+      else
+      {
+         cout << "cannot withdraw " << amount << "$, overdraft limmit exceeded.\n";
+         return false;
+      }
    }
 };
 
@@ -69,8 +93,7 @@ struct BankAccountCommand : Command
       switch (action)
       {
          case deposit:
-            account.deposit(amount);
-            succeeded = true;
+            succeeded = account.deposit(amount);
             break;
          case withdraw:
             succeeded = account.withdraw(amount);
@@ -81,18 +104,17 @@ struct BankAccountCommand : Command
    void
    undo() override
    {
-      if (!succeeded)
-         return;
-
-      switch (action)
+      if (succeeded)
       {
-         case withdraw:
-            if (succeeded)
+         switch (action)
+         {
+            case withdraw:
                account.deposit(amount);
-            break;
-         case deposit:
-            account.withdraw(amount);
-            break;
+               break;
+            case deposit:
+               account.withdraw(amount);
+               break;
+         }
       }
    }
 };
@@ -110,7 +132,9 @@ struct CompositeBankAccountCommand : Command
    call() override
    {
       for (auto& cmd : commands)
+      {
          cmd.call();
+      }
    }
 
    void
