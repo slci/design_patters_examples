@@ -1,18 +1,22 @@
 #include <iostream>
 #include <string>
 
-#include "MathLexer.hpp"
+#include "SimpleMathInterpreter.hpp"
 
 int
 main()
 {
-   std::string input{"(13-4)-(12+1)"};
-
-   auto tokens = lex(input);
-
-   for (const auto& t : tokens)
+   try
    {
-      std::cout << t << " ";
+      std::string input{"(13-4)-(12+1)"};
+
+      auto tokens = lex(input);
+      auto expression = parse(tokens);
+
+      std::cout << "(13-4)-(12+1) = " << expression->eval() << "\n";
    }
-   std::cout << "\n";
+   catch (std::exception& e)
+   {
+      std::cerr << "Unhandled exception: " << e.what() << std::endl;
+   }
 }
