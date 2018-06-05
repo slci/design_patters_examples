@@ -7,112 +7,56 @@
 #include <memory>
 #include <sstream>
 #include <vector>
-
-namespace interpreter_with_vars {
-
-struct Token
-{
-   enum Type
-   {
-      integer,
-      variable,
-      plus,
-      minus
-   } type;
-
-   std::string text;
-
-   Token(const Type t, const std::string& str) : type(t), text(str)
-   {
-   }
-};
-
-
-struct Element
-{
-   virtual int
-   eval() const = 0;
-};
-
-
-struct Integer : Element
-{
-   int value;
-
-   Integer(const int newVal) : value(newVal)
-   {
-   }
-
-   int
-   eval() const override
-   {
-      return value;
-   }
-};
-
-
-struct Variable : Element
-{
-   char name;
-   const std::map< char, int >& variables;
-
-   Variable(const char n, const std::map< char, int >& vars) : name(n), variables(vars)
-   {
-   }
-
-   int
-   eval() const override
-   {
-      return variables.at(name);
-   }
-};
-
-
-struct BinaryOperation : Element
-{
-   enum Type
-   {
-      addition,
-      subtraction
-   } type;
-
-   std::shared_ptr< Element > lhs, rhs;
-
-   int
-   eval() const override
-   {
-      switch (type)
-      {
-         case addition:
-            return lhs->eval() + rhs->eval();
-         case subtraction:
-            return lhs->eval() - rhs->eval();
-      }
-      return 0;
-   }
-};
-
+#include <optional>
 
 struct ExpressionProcessor
 {
    std::map< char, int > variables;
-
-
-   std::vector< Token >
-   lex(const std::string text)
+   
+   
+   enum class Operation
    {
-      std::vector< Token > tokens;
+       plus,
+       minus,
+       invalid
+   };
+
+   int
+   calculate(const std::string& text)
+   {
+      std::optional<int> lhs;
+      Operation op{Operation::invalid};
+       
       for (size_t charIdx = 0; charIdx < text.size(); ++charIdx)
       {
          switch (text[charIdx])
          {
             case '+':
-               tokens.emplace_back(Token::plus, "+");
-               break;
+            {
+                if (!lhs)
+                {
+                    throw std::runtime_error{"error: + operator needs lhs"};
+                }
+                else
+                {
+                      op = Operation::plus;
+                }
+                break;
+            }
             case '-':
-               tokens.emplace_back(Token::minus, "-");
-               break;
+            {
+                if (!lhs)
+                {
+                    throw std::runtime_error{"error: - operator needs lhs"};
+                }
+                else
+                {
+                      op = Operation::minus;
+                }
+                break;
+            }
             default:
+            {
                if (std::isdigit(text[charIdx]))
                {
                   std::ostringstream buffer;
@@ -129,159 +73,70 @@ struct ExpressionProcessor
                         break;
                      }
                   }
-                  tokens.emplace_back(Token::integer, buffer.str());
+                  if (!lhs)
+                  {
+                        lhs = std::stoi(buffer.str());
+                  }
+                  else
+                  {
+                        switch (op)
+                        {
+                              case Operation::plus:
+                                    lhs = lhs.value() + std::stoi(buffer.str());
+                                    break;
+                              case Operation::minus:
+                                    lhs = lhs.value() - std::stoi(buffer.str());
+                                    break;
+                              default:
+                                    throw std::runtime_error{"error: invalid operation"};
+                        }
+                  }
                }
                else if (std::isalpha(text[charIdx]))
                {
-                  std::ostringstream buffer;
-                  buffer << text[charIdx];
-                  for (size_t i = charIdx + 1; i < text.size(); ++i)
+                  if ((charIdx + 1) < text.size() && std::isalpha(text[charIdx + 1]))
                   {
-                     if (std::isalpha(text[i]))
-                     {
-                        buffer << text[i];
-                        ++charIdx;
-                     }
-                     else
-                     {
-                        break;
-                     }
+                        throw std::runtime_error{"error: multi-charater variables unsupported"};
                   }
-                  tokens.emplace_back(Token::variable, buffer.str());
+                  else
+                  {
+                        if (!lhs)
+                        {
+                              lhs = variables.at(text[charIdx]);
+                        }
+                        else
+                        {
+                              switch (op)
+                              {
+                                    case Operation::plus:
+                                          lhs = lhs.value() + variables.at(text[charIdx]);
+                                          break;
+                                    case Operation::minus:
+                                          lhs = lhs.value() - variables.at(text[charIdx]);
+                                          break;
+                                    default:
+                                          throw std::runtime_error{"error: invalid operation"};
+                              }
+                        }
+                  }
                }
                else
                {
-                  throw std::runtime_error{std::string("error: Unexpected token: `") + text[charIdx] + '`'};
+                  throw std::runtime_error{std::string("error: Unexpected character: `") + text[charIdx] + '`'};
                }
-         }
-      }
-
-      return tokens;
-   }
-
-
-   std::shared_ptr< Element >
-   parse(const std::vector< Token >& tokens)
-   {
-      auto rootOp = std::make_shared< BinaryOperation >();
-
-      bool haveLhs{false};
-      bool haveRhs{false};
-
-      for (size_t tokenIdx = 0; tokenIdx < tokens.size(); ++tokenIdx)
-      {
-         const auto& token = tokens[tokenIdx];
-         switch (token.type)
-         {
-            case Token::integer:
-            {
-               const int value = std::stoi(token.text);
-               auto integer = std::make_shared< Integer >(value);
-               if (!haveLhs)
-               {
-                  rootOp->lhs = integer;
-                  haveLhs = true;
-               }
-               else if (!haveRhs)
-               {
-                  rootOp->rhs = integer;
-                  haveRhs = true;
-               }
-               else
-               {
-                  throw std::logic_error{"this should not happen!"};
-               }
-               break;
-            }
-            case Token::variable:
-            {
-               if (token.text.length() > 1)
-               {
-                  throw std::invalid_argument{"error: invalid variable name"};
-               }
-
-               auto var = std::make_shared< Variable >(token.text.at(0), variables);
-               if (!haveLhs)
-               {
-                  rootOp->lhs = var;
-                  haveLhs = true;
-               }
-               else if (!haveRhs)
-               {
-                  rootOp->rhs = var;
-                  haveRhs = true;
-               }
-               else
-               {
-                  throw std::logic_error{"this should not happen!"};
-               }
-               break;
-            }
-            case Token::minus:
-            {
-               if (!haveLhs)
-               {
-                  throw std::runtime_error{"error: no lhs for binary operation!"};
-               }
-               else if (!haveRhs)
-               {
-                  rootOp->type = BinaryOperation::subtraction;
-               }
-               else
-               {
-                  auto newRootOp = std::make_shared< BinaryOperation >();
-                  newRootOp->type = BinaryOperation::subtraction;
-                  newRootOp->lhs = rootOp;
-                  haveRhs = false;
-                  rootOp = newRootOp;
-               }
-               break;
-            }
-            case Token::plus:
-            {
-               if (!haveLhs)
-               {
-                  throw std::runtime_error{"error: no lhs for binary operation!"};
-               }
-               else if (!haveRhs)
-               {
-                  rootOp->type = BinaryOperation::addition;
-               }
-               else
-               {
-                  auto newRootOp = std::make_shared< BinaryOperation >();
-                  newRootOp->type = BinaryOperation::addition;
-                  newRootOp->lhs = rootOp;
-                  haveRhs = false;
-                  rootOp = newRootOp;
-               }
-               break;
             }
          }
       }
 
-
-      return rootOp;
-   }
-
-
-   int
-   calculate(const std::string& text)
-   {
-      try
+      if (lhs)
       {
-         auto tokens = lex(text);
-         auto expression = parse(tokens);
-
-         return expression->eval();
+            return lhs.value();
       }
-      catch (...)
+      else
       {
-         return 0;
+            return 0;
       }
    }
 };
-
-} // namespace interpreter_with_vars
 
 #endif // MATHIWITHVARIABLESINTERPRETER_HPP

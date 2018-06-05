@@ -25,9 +25,9 @@ main()
 
    // Math with variables interpreter test
 
-   auto processor = interpreter_with_vars::ExpressionProcessor{};
+   auto processor = ExpressionProcessor{};
    processor.variables['x'] = 3;
 
-   std::string input{"1+2+x"};
+   std::string input{"10-6+x"};
    std::cout << input << " = " << processor.calculate(input) << "\n";
 }
