@@ -8,6 +8,8 @@
 
 #include <boost/lexical_cast.hpp>
 
+namespace simple_interpreter {
+
 struct Token
 {
    enum Type
@@ -128,6 +130,7 @@ struct BinaryOperation : Element
          case subtraction:
             return lhs->eval() - rhs->eval();
       }
+      return 0;
    }
 };
 
@@ -217,5 +220,7 @@ parse(const std::vector< Token >& tokens)
 
    return rootOp;
 }
+
+} // namespace simple_interpreter
 
 #endif // MATHLEXER_HPP

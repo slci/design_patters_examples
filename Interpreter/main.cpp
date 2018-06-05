@@ -1,22 +1,33 @@
 #include <iostream>
 #include <string>
 
+#include "MathiWithVariablesInterpreter.hpp"
 #include "SimpleMathInterpreter.hpp"
 
 int
 main()
 {
+   // Simple Math interpreter test
    try
    {
       std::string input{"(13-4)-(12+1)"};
 
-      auto tokens = lex(input);
-      auto expression = parse(tokens);
+      auto tokens = simple_interpreter::lex(input);
+      auto expression = simple_interpreter::parse(tokens);
 
-      std::cout << "(13-4)-(12+1) = " << expression->eval() << "\n";
+      std::cout << input << " = " << expression->eval() << "\n";
    }
    catch (std::exception& e)
    {
       std::cerr << "Unhandled exception: " << e.what() << std::endl;
    }
+
+
+   // Math with variables interpreter test
+
+   auto processor = interpreter_with_vars::ExpressionProcessor{};
+   processor.variables['x'] = 3;
+
+   std::string input{"1+2+x"};
+   std::cout << input << " = " << processor.calculate(input) << "\n";
 }
